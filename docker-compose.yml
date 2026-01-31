@@ -1,0 +1,14 @@
+services:
+  devdns:
+    build: .
+    image: devdns:alpine
+    container_name: devdns
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf
+      - ./conf.d:/etc/dnsmasq.d
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
