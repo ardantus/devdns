@@ -9,6 +9,26 @@ services:
     volumes:
       - ./dnsmasq.conf:/etc/dnsmasq.conf
       - ./conf.d:/etc/dnsmasq.d
+      - ./logs:/var/log/dnsmasq
     cap_add:
       - NET_ADMIN
+    restart: unless-stopped
+
+  logviewer:
+    build:
+      context: .
+      dockerfile: Dockerfile.logviewer
+    image: devdns-logviewer:alpine
+    container_name: devdns-logviewer
+    ports:
+      - "8053:8053"
+    volumes:
+      - ./logs:/var/log/dnsmasq:ro
+      - ./conf.d:/etc/dnsmasq.d:ro
+    environment:
+      - LOG_FILE=/var/log/dnsmasq/queries.log
+      - BLOCKED_CONF=/etc/dnsmasq.d/blocked.conf
+      - HTTP_PORT=8053
+    depends_on:
+      - devdns
     restart: unless-stopped

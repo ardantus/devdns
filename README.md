@@ -37,6 +37,67 @@ Setelah menambah atau mengubah file, restart container:
 docker compose restart
 ```
 
+## Log setiap request
+
+Setiap query DNS dicatat ke **logs/queries.log**. Berguna untuk debug atau memantau lalu lintas DNS.
+
+### Menampilkan log
+
+| Cara | Perintah |
+|------|----------|
+| **Semua request** | `./scripts/view-log.sh` atau `tail -f logs/queries.log` |
+| **Hanya yang di-BLOCK** | `./scripts/view-log.sh blocked` |
+| **Hanya yang di-ALLOW** | `./scripts/view-log.sh allowed` |
+| **Ikuti request baru (live)** | `./scripts/view-log.sh all -f` atau `./scripts/view-log.sh blocked -f` |
+
+Contoh baris log query (baris lain seperti startup dnsmasq tidak dihitung):
+
+```
+02/Feb/2026:08:18:41 query[A] microumkm.test from 127.0.0.1
+02/Feb/2026:08:18:42 query[AAAA] google.com from 127.0.0.1
+```
+
+Script **view-log** memisahkan **blocked** vs **allowed** dengan memeriksa daftar block di `conf.d/blocked.conf`.
+
+## Web UI log viewer (port 8053)
+
+Log query DNS bisa dilihat di **web UI** (tanpa GoAccess; cocok untuk log dnsmasq).
+
+1. Jalankan semua service:  
+   `docker compose up -d`
+2. Buka di browser: **http://localhost:8053**
+
+Tampilan: tabel query (waktu, tipe, domain, client, status Blocked/Allowed) dengan filter **Semua** / **Allowed** / **Blocked**. Refresh otomatis setiap 5 detik.
+
+## Block list (domain yang diblokir)
+
+Domain yang ingin diblokir (jawaban `0.0.0.0`) dikelola di **conf.d/blocked.conf**.
+
+### Menambah domain ke block list
+
+**Opsi 1 — script (disarankan):**
+
+```bash
+./scripts/add-block.sh ads.example.com
+docker compose restart
+```
+
+**Opsi 2 — edit manual:**
+
+Tambahkan baris di `conf.d/blocked.conf`:
+
+```
+address=/ads.example.com/0.0.0.0
+```
+
+Lalu restart:
+
+```bash
+docker compose restart
+```
+
+Setelah itu, query ke domain tersebut akan dijawab `0.0.0.0` dan muncul sebagai **blocked** di log viewer.
+
 ## Cara pakai
 
 1. Jalankan: `docker compose up -d`

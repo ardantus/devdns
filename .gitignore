@@ -1,0 +1,2 @@
+# Log dari dnsmasq (tetap simpan folder logs/)
+logs/*.log

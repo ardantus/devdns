@@ -1,0 +1,15 @@
+FROM alpine:3.19
+
+# goaccess ada di repo community
+RUN sed -i '/v3\.19\/community/s/^#//' /etc/apk/repositories 2>/dev/null || true \
+    && apk update \
+    && apk add --no-cache goaccess busybox \
+    && mkdir -p /var/www/html
+
+COPY goaccess.conf /etc/goaccess/goaccess.conf
+COPY goaccess-entrypoint.sh /goaccess-entrypoint.sh
+RUN chmod +x /goaccess-entrypoint.sh
+
+EXPOSE 8053 7890
+
+ENTRYPOINT ["/goaccess-entrypoint.sh"]

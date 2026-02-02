@@ -1,0 +1,15 @@
+FROM alpine:3.19
+
+RUN apk add --no-cache python3
+
+WORKDIR /app
+COPY logviewer/app.py /app/app.py
+RUN chmod +x /app/app.py
+
+EXPOSE 8053
+
+ENV HTTP_PORT=8053
+ENV LOG_FILE=/var/log/dnsmasq/queries.log
+ENV BLOCKED_CONF=/etc/dnsmasq.d/blocked.conf
+
+ENTRYPOINT ["python3", "/app/app.py"]
